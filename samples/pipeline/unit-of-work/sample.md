@@ -6,6 +6,8 @@ component: Core
 related:
  - nservicebus/pipeline
  - nservicebus/pipeline/unit-of-work
+redirects:
+ - samples/unit-of-work
 ---
 
 
