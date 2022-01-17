@@ -1,6 +1,7 @@
 ﻿using Messages;
 using NServiceBus;
 using System;
+using System.Data.SqlClient;
 
 namespace Shipping
 {
@@ -39,33 +40,39 @@ namespace Shipping
                 {
                     var endpointConfiguration = new EndpointConfiguration("Shipping");
 
-                    var transport = endpointConfiguration.UseTransport<LearningTransport>();
-                    var persistence = endpointConfiguration.UsePersistence<LearningPersistence>();
+                    var transport = endpointConfiguration.UseTransport<AzureServiceBusTransport>();
+                    transport.ConnectionString(
+                        "enter-connectionstring");
+                    var persistence = endpointConfiguration.UsePersistence<SqlPersistence>();
+                    persistence.ConnectionBuilder(() => new SqlConnection("enter-connectionstring"));
+                    persistence.SqlDialect<SqlDialect.MsSqlServer>();
 
                     var routing = transport.Routing();
                     routing.RouteToEndpoint(typeof(ShipOrder), "Shipping");
                     routing.RouteToEndpoint(typeof(ShipWithMaple), "Shipping");
                     routing.RouteToEndpoint(typeof(ShipWithAlpine), "Shipping");
 
+
+                    endpointConfiguration.EnableInstallers();
                     return endpointConfiguration;
                 })
                 .ConfigureServices((_, services) =>
                 {
+                    AppContext.SetSwitch("Azure.Experimental.EnableActivitySource", true);
                     services.AddOpenTelemetryTracing(builder => builder
                                                                 .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(EndpointName))
+                                                                .AddSqlClientInstrumentation()
                                                                 .AddSource("NServiceBus")
+                                                                .AddSource("Azure.*")
                                                                 .AddJaegerExporter(c =>
                                                                 {
                                                                     c.AgentHost = "localhost";
                                                                     c.AgentPort = 6831;
                                                                 })
-                                                                .AddAzureMonitorTraceExporter(c => { c.ConnectionString = Environment.GetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY"); })
-                                                                .AddHoneycomb(new HoneycombOptions
-                                                                {
-                                                                    ServiceName = "spike",
-                                                                    ApiKey = Environment.GetEnvironmentVariable("HONEYCOMB_APIKEY"),
-                                                                    Dataset = "spike-core"
-                                                                })
+                                                                // .AddAzureMonitorTraceExporter(c =>
+                                                                // {
+                                                                //     c.ConnectionString = "enter-instrumentationconnectionstring;
+                                                                // })
                     );
                 });
 

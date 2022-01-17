@@ -26,27 +26,25 @@ namespace ClientUI
         {
             services.AddControllers();
             services.AddMvc();
-
+            AppContext.SetSwitch("Azure.Experimental.EnableActivitySource", true);
             services.AddOpenTelemetryTracing(builder => builder
                                                         .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(Program.EndpointName))
-                                                        //.AddHttpClientInstrumentation()
                                                         .AddAspNetCoreInstrumentation(opt => opt.Enrich = (activity, key, value) =>
                                                         {
                                                             Console.WriteLine($"Got an activity named {key}");
                                                         })
+                                                        .AddSqlClientInstrumentation()
                                                         .AddSource("NServiceBus")
+                                                        .AddSource("Azure.*")
                                                         .AddJaegerExporter(c =>
                                                         {
                                                             c.AgentHost = "localhost";
                                                             c.AgentPort = 6831;
                                                         })
-                                                        .AddAzureMonitorTraceExporter(c => { c.ConnectionString = Environment.GetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY"); })
-                                                        .AddHoneycomb(new HoneycombOptions
-                                                        {
-                                                            ServiceName = "spike",
-                                                            ApiKey = Environment.GetEnvironmentVariable("HONEYCOMB_APIKEY"),
-                                                            Dataset = "spike-core"
-                                                        })
+                                                        // .AddAzureMonitorTraceExporter(c =>
+                                                        // {
+                                                        //     c.ConnectionString = "enter-instrumentationconnectionstring;
+                                                        // })
             );
         }
 

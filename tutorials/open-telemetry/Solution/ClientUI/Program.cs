@@ -20,14 +20,15 @@ namespace ClientUI
                         .UseNServiceBus(context =>
                         {
                             var endpointConfiguration = new EndpointConfiguration(EndpointName);
-                            var transport = endpointConfiguration.UseTransport<LearningTransport>();
 
-                            var routing = transport.Routing();
-                            routing.RouteToEndpoint(typeof(PlaceOrder), "Sales");
+                            var transport = endpointConfiguration.UseTransport<AzureServiceBusTransport>();
+                            transport.ConnectionString("enter-connectionstring");
 
                             endpointConfiguration.SendFailedMessagesTo("error");
                             endpointConfiguration.AuditProcessedMessagesTo("audit");
                             endpointConfiguration.SendHeartbeatTo("Particular.ServiceControl");
+
+                            endpointConfiguration.EnableInstallers();
 
                             var metrics = endpointConfiguration.EnableMetrics();
                             metrics.SendMetricDataToServiceControl("Particular.Monitoring", TimeSpan.FromMilliseconds(500));
