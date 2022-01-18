@@ -41,10 +41,10 @@ namespace Sales
                     var endpointConfiguration = new EndpointConfiguration(EndpointName);
 
                     var transport = endpointConfiguration.UseTransport<AzureServiceBusTransport>();
-                    transport.ConnectionString("enter-connectionstring");
+                    transport.ConnectionString(Environment.GetEnvironmentVariable("AzureServiceBusTransport.ConnectionString"));
 
                     var persistence = endpointConfiguration.UsePersistence<SqlPersistence>();
-                    persistence.ConnectionBuilder(() => new SqlConnection("enter-connectionstring"));
+                    persistence.ConnectionBuilder(() => new SqlConnection(Environment.GetEnvironmentVariable("SQLServerConnectionString")));
                     persistence.SqlDialect<SqlDialect.MsSqlServer>();
 
                     endpointConfiguration.EnableInstallers();

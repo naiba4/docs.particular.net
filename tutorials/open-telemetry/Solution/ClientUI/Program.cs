@@ -22,7 +22,7 @@ namespace ClientUI
                             var endpointConfiguration = new EndpointConfiguration(EndpointName);
 
                             var transport = endpointConfiguration.UseTransport<AzureServiceBusTransport>();
-                            transport.ConnectionString("enter-connectionstring");
+                            transport.ConnectionString(Environment.GetEnvironmentVariable("AzureServiceBusTransport.ConnectionString"));
 
                             endpointConfiguration.SendFailedMessagesTo("error");
                             endpointConfiguration.AuditProcessedMessagesTo("audit");
