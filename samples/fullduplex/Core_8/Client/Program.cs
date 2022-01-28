@@ -1,55 +1,64 @@
+using Client;
+
 using NServiceBus;
 using NServiceBus.Logging;
+
 using Shared;
+
 using System;
 using System.Threading.Tasks;
 
 class Program
 {
-    static async Task Main()
+    static async Task Main(string[] args)
     {
-        Console.Title = "Samples.FullDuplex.Client";
+        bool useAzureStorage = false;
+        int messagesToSend = 1000;
+
+        Console.Title = "BodyStorage.Test.Client";
+
         LogManager.Use<DefaultFactory>()
             .Level(LogLevel.Info);
-        var endpointConfiguration = new EndpointConfiguration("Samples.FullDuplex.Client");
+        var endpointConfiguration = new EndpointConfiguration("BodyStorage.Test.Client");
+        endpointConfiguration.EnableInstallers();
         endpointConfiguration.UsePersistence<LearningPersistence>();
-        endpointConfiguration.UseTransport(new LearningTransport());
+        endpointConfiguration.UseTransport(new RabbitMQTransport(Topology.Conventional, Environment.GetEnvironmentVariable("RabbitMQTransport_ConnectionString")));
 
         endpointConfiguration.AuditProcessedMessagesTo("audit");
-        var containerClient = await AzureAuditBodyStorageConfiguration.GetContainerClient();
 
-        endpointConfiguration.Pipeline.Register(_ => new StoreAuditBodyInAzureBlobStorageBehavior(containerClient), "Writing the body to azure blobstorage");
-
+        if (useAzureStorage)
+        {
+            var containerClient = await AzureAuditBodyStorageConfiguration.GetContainerClient();
+            endpointConfiguration.Pipeline.Register(_ => new StoreAuditBodyInAzureBlobStorageBehavior(containerClient), "Writing the body to azure blobstorage");
+        }
 
         var endpointInstance = await Endpoint.Start(endpointConfiguration)
             .ConfigureAwait(false);
-        Console.WriteLine("Press enter to send a message");
-        Console.WriteLine("Press any key to exit");
 
-        #region ClientLoop
+        var payloadGenerator = new RandomPayloadGenerator(new Random(42));
+        await payloadGenerator.Initialize();
 
-        while (true)
+        Console.CursorVisible = false;
+        Console.Write("Messages sent: ");
+        var cursor = Console.GetCursorPosition();
+
+        for (int i = 0; i < messagesToSend; ++i)
         {
-            var key = Console.ReadKey();
-            Console.WriteLine();
-
-            if (key.Key != ConsoleKey.Enter)
-            {
-                break;
-            }
-            var guid = Guid.NewGuid();
-            Console.WriteLine($"Requesting to get data by id: {guid:N}");
+            Console.SetCursorPosition(cursor.Left, cursor.Top);
 
             var message = new RequestDataMessage
             {
-                DataId = guid,
-                String = "String property value"
+                DataId = Guid.NewGuid(),
+                String = payloadGenerator.GetTextBlock()
             };
-            await endpointInstance.Send("Samples.FullDuplex.Server", message)
-                .ConfigureAwait(false);
-        }
 
-        #endregion
+            await endpointInstance.Send("BodyStorage.Test.Server", message)
+                .ConfigureAwait(false);
+
+            Console.Write(i + 1);
+        }
+        Console.WriteLine();
+
         await endpointInstance.Stop()
             .ConfigureAwait(false);
     }

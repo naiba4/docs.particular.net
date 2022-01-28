@@ -8,19 +8,26 @@ class Program
 {
     static async Task Main()
     {
-        Console.Title = "Samples.FullDuplex.Server";
+        bool useAzureStorage = false;
+
+        Console.Title = "BodyStorage.Test.Server";
         LogManager.Use<DefaultFactory>()
             .Level(LogLevel.Info);
-        var endpointConfiguration = new EndpointConfiguration("Samples.FullDuplex.Server");
+
+        var transport = new RabbitMQTransport(Topology.Conventional, Environment.GetEnvironmentVariable("RabbitMQTransport_ConnectionString"));
+        var endpointConfiguration = new EndpointConfiguration("BodyStorage.Test.Server");
+        endpointConfiguration.EnableInstallers();
         endpointConfiguration.UsePersistence<LearningPersistence>();
-        endpointConfiguration.UseTransport(new LearningTransport());
+        var routing = endpointConfiguration.UseTransport(transport);
 
         endpointConfiguration.AuditProcessedMessagesTo("audit");
+        endpointConfiguration.SendFailedMessagesTo("error");
 
-        var containerClient = await AzureAuditBodyStorageConfiguration.GetContainerClient();
-
-        endpointConfiguration.Pipeline.Register(_ => new StoreAuditBodyInAzureBlobStorageBehavior(containerClient), "Writing the body to azure blobstorage");
-
+        if(useAzureStorage)
+        {
+            var containerClient = await AzureAuditBodyStorageConfiguration.GetContainerClient();
+            endpointConfiguration.Pipeline.Register(_ => new StoreAuditBodyInAzureBlobStorageBehavior(containerClient), "Writing the body to azure blobstorage");
+        }
 
         var endpointInstance = await Endpoint.Start(endpointConfiguration)
             .ConfigureAwait(false);

@@ -8,7 +8,7 @@
     {
         public static async Task<BlobContainerClient> GetContainerClient()
         {
-            var blobClient = new BlobServiceClient(Environment.GetEnvironmentVariable("AzureBlobAuditStorage"));
+            var blobClient = new BlobServiceClient(Environment.GetEnvironmentVariable("AzureStorage_ConnectionString"));
 
             var blobContainerClient = blobClient.GetBlobContainerClient("audit-bodies");
             await blobContainerClient.CreateIfNotExistsAsync().ConfigureAwait(false);
