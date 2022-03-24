@@ -7,11 +7,13 @@ using NServiceBus;
 public class SendMessageController : Controller
 {
     IMessageSession messageSession;
+    readonly ReceiverDataContext dataContext;
 
     #region MessageSessionInjection
-    public SendMessageController(IMessageSession messageSession)
+    public SendMessageController(IMessageSession messageSession, ReceiverDataContext dataContext)
     {
         this.messageSession = messageSession;
+        this.dataContext = dataContext;
     }
     #endregion
 
@@ -21,7 +23,7 @@ public class SendMessageController : Controller
     public async Task<string> Get()
     {
         var message = new MyMessage();
-        await messageSession.Send(message)
+        await messageSession.SendLocal(message)
             .ConfigureAwait(false);
         return "Message sent to endpoint";
     }
