@@ -2,7 +2,6 @@
 using NServiceBus;
 using NServiceBus.Logging;
 
-[WebCurrentSessionHolderFilter]
 public class MyHandler :
     IHandleMessages<MyMessage>
 {

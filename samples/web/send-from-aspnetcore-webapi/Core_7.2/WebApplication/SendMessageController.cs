@@ -7,20 +7,18 @@ using NServiceBus;
 public class SendMessageController : Controller
 {
     IMessageSession messageSession;
-    readonly ReceiverDataContext dataContext;
 
     #region MessageSessionInjection
-    public SendMessageController(IMessageSession messageSession, ReceiverDataContext dataContext)
+    public SendMessageController(IMessageSession messageSession)
     {
         this.messageSession = messageSession;
-        this.dataContext = dataContext;
     }
     #endregion
 
 
     #region MessageSessionUsage
     [HttpGet]
-    public async Task<string> Get()
+    public async Task<string> Get([FromServices]ReceiverDataContext context)
     {
         var message = new MyMessage();
         await messageSession.SendLocal(message)

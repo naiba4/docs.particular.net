@@ -1,10 +1,10 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -100,18 +100,18 @@ class UnitOfWorkSession : IUnitOfWorkSession
     }
 }
 
-public class WebCurrentSessionHolderFilter : ActionFilterAttribute
+public class WebCurrentSessionHolderMiddleware : IMiddleware
 {
-    public override async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
+    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        var holder = context.HttpContext.RequestServices.GetService<WebCurrentSessionHolder>();
+        var holder = context.RequestServices.GetService<WebCurrentSessionHolder>();
 
         using (var scope = holder.CreateScope())
         {
             var session = new UnitOfWorkSession();
             holder.SetCurrentSession(session);
 
-            await next();
+            await next(context);
 
             await session.Commit();
         }
@@ -122,7 +122,7 @@ public class Program
 {
     public static async Task Main()
     {
-        var connection = @"server=(local);database=session_spike;Integrated Security=True;Max Pool Size=100";
+        var connection = @"Server=localhost,1433;Initial Catalog=sc-sql-spike;Persist Security Info=False;User ID=sa;Password=larry666!;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30;";
 
         using (var receiverDataContext = new ReceiverDataContext(new DbContextOptionsBuilder<ReceiverDataContext>()
                    .UseSqlServer(new SqlConnection(connection))
@@ -152,7 +152,7 @@ public class Program
                     c.ConfigureComponent(b =>
                     {
                         ISqlStorageSession session;
-                        var webSession = b.BuildAll<IUnitOfWorkSession>().FirstOrDefault();
+                        var webSession = b.Build<WebCurrentSessionHolder>().Current;
                         if (webSession != null)
                         {
                             session = webSession.StorageSession.SqlPersistenceSession();
