@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
 
 static class Program
@@ -10,20 +11,17 @@ static class Program
     {
         Console.Title = "Samples.Autofac";
 
-        #region ContainerConfiguration
-
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddSingleton<MyService>();
         var endpointConfiguration = new EndpointConfiguration("Samples.Autofac");
-
-        endpointConfiguration.UseContainer(new AutofacServiceProviderFactory(containerBuilder =>
-        {
-            containerBuilder.RegisterInstance(new MyService());
-        }));
-
-        #endregion
-
         endpointConfiguration.UseTransport<LearningTransport>();
 
-        var endpointInstance = await Endpoint.Start(endpointConfiguration)
+        var startableEndpoint = EndpointWithExternallyManagedServiceProvider.Create(endpointConfiguration, serviceCollection);
+
+        var containerBuilder = new ContainerBuilder();
+        containerBuilder.Populate(serviceCollection);
+        var autofacContainer = containerBuilder.Build();
+        var endpointInstance = await startableEndpoint.Start(new AutofacServiceProvider(autofacContainer))
             .ConfigureAwait(false);
 
         var myMessage = new MyMessage();
