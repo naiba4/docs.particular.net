@@ -7,29 +7,44 @@ using NServiceBus;
 
 static class Program
 {
+    private const string RootLifetimeTag = "MyIsolatedRoot";
+
     static async Task Main()
     {
         Console.Title = "Samples.Autofac";
 
-        var serviceCollection = new ServiceCollection();
-        serviceCollection.AddSingleton<MyService>();
+        var containerBuilder = new ContainerBuilder();
+        containerBuilder.RegisterType<MyOtherService>().AsSelf().SingleInstance();
+        var rootContainer = containerBuilder.Build();
+
         var endpointConfiguration = new EndpointConfiguration("Samples.Autofac");
         endpointConfiguration.UseTransport<LearningTransport>();
 
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddSingleton<MyService>();
+
         var startableEndpoint = EndpointWithExternallyManagedServiceProvider.Create(endpointConfiguration, serviceCollection);
 
-        var containerBuilder = new ContainerBuilder();
-        containerBuilder.Populate(serviceCollection);
-        var autofacContainer = containerBuilder.Build();
-        var endpointInstance = await startableEndpoint.Start(new AutofacServiceProvider(autofacContainer))
-            .ConfigureAwait(false);
+        using(var scope = rootContainer.BeginLifetimeScope(RootLifetimeTag, b =>
+          {
+              b.Populate(serviceCollection, RootLifetimeTag);
+          }))
+        {
+            var endpointInstance = await startableEndpoint.Start(new AutofacServiceProvider(scope))
+                .ConfigureAwait(false);
 
-        var myMessage = new MyMessage();
-        await endpointInstance.SendLocal(myMessage)
-            .ConfigureAwait(false);
-        Console.WriteLine("Press any key to exit");
-        Console.ReadKey();
-        await endpointInstance.Stop()
-            .ConfigureAwait(false);
+            var message1 = new MyMessage();
+            await endpointInstance.SendLocal(message1)
+                .ConfigureAwait(false);
+
+            var message2 = new MyMessage();
+            await endpointInstance.SendLocal(message2)
+                .ConfigureAwait(false);
+
+            Console.WriteLine("Press any key to exit");
+            Console.ReadKey();
+            await endpointInstance.Stop()
+                .ConfigureAwait(false);
+        }
     }
 }
