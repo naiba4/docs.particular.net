@@ -42,8 +42,6 @@ For more details and examples refer to the [transaction configuration API](/nser
 
 The custom connection factory method is now expected to be `async` and no parameters are passed to it by the framework:
 
-snippet: 2to3-sqlserver-custom-connection-factory
-
 In 2.x:
 
 ```csharp
