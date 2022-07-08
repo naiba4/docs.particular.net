@@ -36,17 +36,6 @@
         }
 
 
-        void TransportTransactions(EndpointConfiguration endpointConfiguration)
-        {
-            #region 5to6DoNotWrapHandlersInTransaction
-
-            var transport = endpointConfiguration.UseTransport<MyTransport>();
-            transport.Transactions(TransportTransactionMode.ReceiveOnly);
-
-            #endregion
-        }
-
-
         void CriticalError(EndpointConfiguration endpointConfiguration)
         {
             // ReSharper disable RedundantDelegateCreation
@@ -67,49 +56,6 @@
             // ReSharper restore ConvertToLambdaExpression
         }
 
-        void SuppressDistributedTransactions(ReadOnlySettings readOnlySettings)
-        {
-            #region 5to6SuppressDistributedTransactions
-
-            var transactionModeForReceives = readOnlySettings.GetRequiredTransactionModeForReceives();
-            var suppressDistributedTransactions = transactionModeForReceives != TransportTransactionMode.TransactionScope;
-
-            #endregion
-        }
-
-        void IsTransactional(ReadOnlySettings readOnlySettings)
-        {
-            #region 5to6IsTransactional
-
-            var transactionModeForReceives = readOnlySettings.GetRequiredTransactionModeForReceives();
-            var isTransactional = transactionModeForReceives != TransportTransactionMode.None;
-
-            #endregion
-        }
-
-        void TransportTransactionIsolationLevelAndTimeout(EndpointConfiguration endpointConfiguration)
-        {
-            #region 5to6TransportTransactionScopeOptions
-
-            var transport = endpointConfiguration.UseTransport<MyTransport>();
-            transport.Transactions(TransportTransactionMode.TransactionScope);
-            transport.TransactionScopeOptions(
-                isolationLevel: IsolationLevel.RepeatableRead,
-                timeout: TimeSpan.FromSeconds(30));
-
-            #endregion
-        }
-
-        void WrapHandlersExecutionInATransactionScope(EndpointConfiguration endpointConfiguration)
-        {
-            #region 5to6WrapHandlersExecutionInATransactionScope
-
-            var unitOfWork = endpointConfiguration.UnitOfWork();
-            unitOfWork.WrapHandlersInATransactionScope();
-
-            #endregion
-        }
-
         async Task DelayedDelivery(IMessageHandlerContext handlerContext, object message)
         {
             #region 5to6delayed-delivery
@@ -121,56 +67,6 @@
 
             await handlerContext.Send(message, sendOptions)
                 .ConfigureAwait(false);
-
-            #endregion
-        }
-
-        void EnableTransactions(EndpointConfiguration endpointConfiguration)
-        {
-            #region 5to6EnableTransactions
-
-            // Using a transport will enable transactions automatically.
-            endpointConfiguration.UseTransport<MyTransport>();
-
-            #endregion
-        }
-
-        void DisableTransactions(EndpointConfiguration endpointConfiguration)
-        {
-            #region 5to6DisableTransactions
-
-            var transport = endpointConfiguration.UseTransport<MyTransport>();
-            transport.Transactions(TransportTransactionMode.None);
-
-            #endregion
-        }
-
-        void EnableDistributedTransactions(EndpointConfiguration endpointConfiguration)
-        {
-            #region 5to6EnableDistributedTransactions
-
-            var transport = endpointConfiguration.UseTransport<MyTransport>();
-            transport.Transactions(TransportTransactionMode.TransactionScope);
-
-            #endregion
-        }
-
-        void DisableDistributedTransactions(EndpointConfiguration endpointConfiguration)
-        {
-            #region 5to6DisableDistributedTransactions
-
-            var transport = endpointConfiguration.UseTransport<MyTransport>();
-            transport.Transactions(TransportTransactionMode.ReceiveOnly);
-
-            #endregion
-        }
-
-        void DisableDistributedTransactionsNative(EndpointConfiguration endpointConfiguration)
-        {
-            #region 5to6DisableDistributedTransactionsNative
-
-            var transport = endpointConfiguration.UseTransport<MyTransport>();
-            transport.Transactions(TransportTransactionMode.SendsAtomicWithReceive);
 
             #endregion
         }
