@@ -157,7 +157,57 @@ The configuration API for [multi-instance support](/transports/sql/deployment-op
 
 Note that `EnableLegacyMultiInstanceMode` method replaces both [pull and push modes](/transports/sql/connection-settings.md?version=SqlTransportLegacySystemClient_3#multiple-connection-strings) from version 2.x.
 
-snippet: 2to3-sqlserver-multiinstance-upgrade
+In 3.x 
+```csharp
+var transport = endpointConfiguration.UseTransport<SqlServerTransport>();
+    transport.EnableLegacyMultiInstanceMode(
+        sqlConnectionFactory: async address =>
+        {
+            string connectionString;
+            if (address == "RemoteEndpoint")
+            {
+                connectionString = "SomeConnectionString";
+            }
+            else
+            {
+                connectionString = "SomeOtherConnectionString";
+            }
+            var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync()
+                .ConfigureAwait(false);
+            return connection;
+        });
+```
+
+In 2.x 
+```csharp
+var transport = busConfiguration.UseTransport<SqlServerTransport>();
+    // Option 1
+    transport
+        .UseSpecificConnectionInformation(
+            EndpointConnectionInfo.For("RemoteEndpoint")
+                .UseConnectionString("SomeConnectionString"),
+            EndpointConnectionInfo.For("AnotherEndpoint")
+                .UseConnectionString("SomeOtherConnectionString"));
+
+    // Option 2
+    transport
+        .UseSpecificConnectionInformation(
+            connectionInformationProvider: x =>
+            {
+                if (x == "RemoteEndpoint")
+                {
+                    var connection = ConnectionInfo.Create();
+                    return connection.UseConnectionString("SomeConnectionString");
+                }
+                if (x == "AnotherEndpoint")
+                {
+                    var connection = ConnectionInfo.Create();
+                    return connection.UseConnectionString("SomeOtherConnectionString");
+                }
+                return null;
+            });
+```
 
 Note that `multi-instance` mode has been deprecated and is not recommended for new projects.
 
