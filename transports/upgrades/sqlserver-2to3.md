@@ -23,7 +23,15 @@ The primary namespace is `NServiceBus`. Advanced APIs have been moved to `NServi
 
 The native transaction support has been split into two levels: `ReceiveOnly` and `SendAtomicWithReceive`. Both are supported. `SendAtomicWithReceive` is equivalent to disabling distributed transactions in NServiceBus version 5.
 
-snippet: 2to3-enable-native-transaction
+```csharp
+// 2.x
+var transactions = busConfiguration.Transactions();
+transactions.DisableDistributedTransactions();
+
+// 3.x
+var transport = endpointConfiguration.UseTransport<SqlServerTransport>();
+transport.Transactions(TransportTransactionMode.SendsAtomicWithReceive);
+```
 
 As shown in the above snippet, transaction settings are now handled in the transport level configuration.
 
@@ -35,6 +43,55 @@ For more details and examples refer to the [transaction configuration API](/nser
 The custom connection factory method is now expected to be `async` and no parameters are passed to it by the framework:
 
 snippet: 2to3-sqlserver-custom-connection-factory
+
+In 2.x:
+
+```csharp
+var transport = busConfiguration.UseTransport<SqlServerTransport>();
+transport.UseCustomSqlConnectionFactory(
+    connectionString =>
+    {
+        var connection = new SqlConnection(connectionString);
+        try
+        {
+            connection.Open();
+
+            // custom operations
+
+            return connection;
+        }
+        catch
+        {
+            connection.Dispose();
+            throw;
+        }
+    });
+```
+
+In 3.x:
+
+```csharp
+var transport = endpointConfiguration.UseTransport<SqlServerTransport>();
+transport.UseCustomSqlConnectionFactory(
+    sqlConnectionFactory: async () =>
+    {
+        var connection = new SqlConnection("SomeConnectionString");
+        try
+        {
+            await connection.OpenAsync()
+                .ConfigureAwait(false);
+
+            // perform custom operations
+
+            return connection;
+        }
+        catch
+        {
+            connection.Dispose();
+            throw;
+        }
+    });
+```
 
 
 ### Accessing transport connection
