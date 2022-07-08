@@ -23,6 +23,45 @@ All types specified in this document are now in the `NServiceBus` namespace.
 
 snippet: ConfigureEndpointWithAzureHost
 
+In 8.x
+```csharp
+public class EndpointConfig :
+    IConfigureThisEndpoint,
+    AsA_Worker
+{
+    public void Customize(EndpointConfiguration endpointConfiguration)
+    {
+        // Configure transport, persistence, etc.
+    }
+}
+```
+
+In 7.x
+```csharp
+public class EndpointConfig :
+    IConfigureThisEndpoint,
+    AsA_Worker
+{
+    public void Customize(EndpointConfiguration endpointConfiguration)
+    {
+        // Configure transport, persistence, etc.
+    }
+}
+```
+
+In 6.x 
+```csharp
+public class EndpointConfig :
+    IConfigureThisEndpoint,
+    AsA_Worker
+{
+    public void Customize(BusConfiguration busConfiguration)
+    {
+        // Configure transport, persistence, etc.
+    }
+}
+```
+
 
 ## AsA_Host role changes into IConfigureThisHost
 
