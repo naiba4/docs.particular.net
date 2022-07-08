@@ -98,7 +98,10 @@ Accessing transport connection can be done in version 2 of the transport by inje
 
 In version 3, this API has been removed. The same goal can be achieved in version 3 by using ambient transaction mode.
 
-snippet: 2to3-enable-ambient-transaction
+```csharp
+ var transport = endpointConfiguration.UseTransport<SqlServerTransport>();
+transport.Transactions(TransportTransactionMode.TransactionScope);
+```
 
 The handler must open a connection to access the data, but assuming both handler and the transport are configured to use the same connection string, there is no DTC escalation. SQL Server 2008 and later can detect that both connections target the same resource and merges the two transactions into a single lightweight transaction.
 
