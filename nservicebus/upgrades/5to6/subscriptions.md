@@ -37,4 +37,38 @@ Automatic subscription happens during the startup phase of the bus. Previous ver
 
 [MSMQ subscription authorization](/transports/msmq/subscription-authorisation.md) is now done by the `SubscriptionAuthorizer` delegate at configuration time and not by the `IAuthorizeSubscriptions` interface.
 
-snippet: 5to6-MsmqSubscriptionAuthorizer
+In NServiceBus 5:
+
+```csharp
+var transport = endpointConfiguration.UseTransport<MsmqTransport>();
+transport.SubscriptionAuthorizer(context =>
+    {
+        var headers = context.MessageHeaders;
+        var subscriptionMessageType = headers[Headers.SubscriptionMessageType];
+        var messageIntent = headers[Headers.MessageIntent];
+        var messageIntentEnum = (MessageIntentEnum)Enum.Parse(typeof(MessageIntentEnum), messageIntent, true);
+        // messageIntentEnum will be either MessageIntentEnum.Unsubscribe or MessageIntentEnum.Subscribe
+        var endpointName = headers[Headers.SubscriberEndpoint]
+            .ToLowerInvariant();
+        // true to allow false to decline
+        return true;
+    });
+```
+
+In NServiceBus 6:
+```csharp
+class MsmqAuthorizeSubscriptions : IAuthorizeSubscriptions
+{
+    public bool AuthorizeSubscribe(string messageType, string clientEndpoint, IDictionary<string, string> headers)
+    {
+        var lowerEndpointName = clientEndpoint.ToLowerInvariant();
+        return lowerEndpointName.StartsWith("samples.pubsub.subscriber1") ||
+                lowerEndpointName.StartsWith("samples.pubsub.subscriber2");
+    }
+
+    public bool AuthorizeUnsubscribe(string messageType, string clientEndpoint, IDictionary<string, string> headers)
+    {
+        return true;
+    }
+}
+```
