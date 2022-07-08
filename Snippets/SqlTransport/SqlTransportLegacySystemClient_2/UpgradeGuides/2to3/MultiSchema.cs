@@ -6,16 +6,6 @@ namespace SqlTransport_2.UpgradeGuides._2to3
 
     class MultiSchema
     {
-        void NonStandardSchema(BusConfiguration busConfiguration)
-        {
-            #region 2to3-sqlserver-non-standard-schema
-
-            var transport = busConfiguration.UseTransport<SqlServerTransport>();
-            transport.DefaultSchema("myschema");
-
-            #endregion
-        }
-
         void ConfigureCustomSchemaForEndpointAndQueue(BusConfiguration busConfiguration)
         {
             #region 2to3-sqlserver-multischema-config-for-endpoint-and-queue

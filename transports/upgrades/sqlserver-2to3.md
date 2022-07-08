@@ -114,7 +114,18 @@ The configuration API for [multi-schema support](/transports/sql/deployment-opti
 
 The schema for the configured endpoint can be specified using `DefaultSchema` method:
 
-snippet: 2to3-sqlserver-non-standard-schema
+In 3.x
+```csharp 
+var transport = endpointConfiguration.UseTransport<SqlServerTransport>();
+transport.DefaultSchema("myschema");
+```
+
+In 2.x 
+```csharp 
+var transport = busConfiguration.UseTransport<SqlServerTransport>();
+transport.DefaultSchema("myschema");
+```
+
 
 or by defining a custom schema per endpoint or queue:
 
