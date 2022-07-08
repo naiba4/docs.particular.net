@@ -126,10 +126,17 @@ var transport = busConfiguration.UseTransport<SqlServerTransport>();
 transport.DefaultSchema("myschema");
 ```
 
-
 or by defining a custom schema per endpoint or queue:
 
-snippet: 2to3-sqlserver-multischema-config-for-endpoint-and-queue
+```csharp
+var transport = busConfiguration.UseTransport<SqlServerTransport>();
+        transport.UseSpecificConnectionInformation(
+            EndpointConnectionInfo.For("sales")
+                .UseSchema("sender"),
+            EndpointConnectionInfo.For("error")
+                .UseSchema("control")
+        );
+```
 
 This enables configuring custom schema both for local endpoint as well as for other endpoints that the configured endpoint communicates with. When using configuration file to specify schemas for other endpoints, their schemas should be placed in the `MessageEndpointMappings` section and follow `endpoint-name@schema-name` convention:
 
