@@ -226,6 +226,17 @@ The method `PauseAfterReceiveFailure(TimeSpan)` is no longer supported. In versi
 
 Queue tables created by version 2.2.1 or lower require manual creation of a non-clustered index on the `[Expires]` column. The following SQL statement can be used to create the missing index:
 
-snippet: 2to3-sqlExpiresIndex
+```sql
+CREATE NONCLUSTERED INDEX [Index_Expires]
+ON [schema].[queuename]
+(
+	[Expires] ASC
+)
+INCLUDE
+(
+	[Id],
+	[RowVersion]
+)
+```
 
 A warning will be logged when a missing index is detected.
