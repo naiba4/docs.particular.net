@@ -65,8 +65,42 @@ public class EndpointConfig :
 
 The specifiers `IConfigureThisEndpoint` and `AsA_Host` are now merged into `IConfigureThisHost`.
 
-snippet: AsAHost
+In 8.x 
+```csharp
+public class EndpointHostConfig :
+    IConfigureThisHost
+{
+    public HostingSettings Configure()
+    {
+        return new HostingSettings("DefaultEndpointsProtocol=https;AccountName=[ACCOUNT];AccountKey=[KEY];");
+    }
+}
+```
 
+In 7.x
+```csharp 
+public class EndpointHostConfig :
+    IConfigureThisHost
+{
+    public HostingSettings Configure()
+    {
+        return new HostingSettings("DefaultEndpointsProtocol=https;AccountName=[ACCOUNT];AccountKey=[KEY];");
+    }
+}
+```
+
+In 6.x
+```csharp
+public class EndpointHostConfig :
+    IConfigureThisEndpoint,
+    AsA_Host
+{
+    public void Customize(BusConfiguration configuration)
+    {
+    }
+}
+
+```
 
 ### Removal of DynamicHostControllerConfig
 
