@@ -21,8 +21,6 @@ All types specified in this document are now in the `NServiceBus` namespace.
 
 `IConfigureThisEndpoint.Customize` is passed an instance of `EndpointConfiguration` instead of `BusConfiguration`.
 
-snippet: ConfigureEndpointWithAzureHost
-
 In 8.x
 ```csharp
 public class EndpointConfig :
