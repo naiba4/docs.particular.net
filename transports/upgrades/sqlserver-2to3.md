@@ -140,8 +140,16 @@ var transport = busConfiguration.UseTransport<SqlServerTransport>();
 
 This enables configuring custom schema both for local endpoint as well as for other endpoints that the configured endpoint communicates with. When using configuration file to specify schemas for other endpoints, their schemas should be placed in the `MessageEndpointMappings` section and follow `endpoint-name@schema-name` convention:
 
-snippet: 2to3-sqlserver-multischema-config
-
+```xml
+<UnicastBusConfig>
+    <MessageEndpointMappings>
+      <add Assembly="Billing.Contract"
+           Endpoint="billing@schema_name"/>
+      <add Assembly="Sales.Contract"
+           Endpoint="sales@another_schema_name"/>
+    </MessageEndpointMappings>
+  </UnicastBusConfig>
+```
 
 ### Multi-instance support
 
