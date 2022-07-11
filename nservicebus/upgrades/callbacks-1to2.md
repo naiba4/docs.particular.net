@@ -44,5 +44,7 @@ don't require a reference to the callbacks package.
 
 For endpoints replying with int or enum results, the callbacks package can be enabled in response-only mode:
 
-snippet: 1to2-Callbacks-InstanceId-NoRequests
+```csharp
+endpointConfiguration.EnableCallbacks(makesRequests: false);
+```
 
