@@ -16,7 +16,31 @@ upgradeGuideCoreVersions:
 
 `IConfigureThisEndpoint.Customize` is passed an instance of `EndpointConfiguration` instead of `BusConfiguration`.
 
-snippet: 6to7customize_nsb_host
+In 6.x
+```csharp
+class CustomizingHostUpgrade :
+    IConfigureThisEndpoint
+{
+    public void Customize(BusConfiguration busConfiguration)
+    {
+        // perform some custom configuration
+        busConfiguration.UsePersistence<InMemoryPersistence>();
+    }
+}
+```
+
+In 7.x 
+```csharp
+class CustomizingHostUpgrade :
+    IConfigureThisEndpoint
+{
+    public void Customize(EndpointConfiguration endpointConfiguration)
+    {
+        // perform some custom configuration
+        endpointConfiguration.UsePersistence<InMemoryPersistence>();
+    }
+}
+```
 
 ## IConfigureLogging and IConfigureLoggingForProfile<T> changes
 
