@@ -9,11 +9,7 @@ namespace Core6
 
         void EnablingCriticalTime(EndpointConfiguration endpointConfiguration)
         {
-            #region 6to1-enable-criticaltime
-
-            endpointConfiguration.EnableCriticalTimePerformanceCounter();
-
-            #endregion
+  
         }
         void EnablingSla(EndpointConfiguration endpointConfiguration)
         {

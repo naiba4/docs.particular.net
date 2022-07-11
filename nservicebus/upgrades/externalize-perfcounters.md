@@ -17,7 +17,15 @@ The NServiceBus Performance Counter APIs have been marked as obsolete and have o
 
 ### Enabling Critical Time Counter
 
-snippet: 6to1-enable-criticaltime
+In 1.x 
+```csharp
+var performanceCounters = endpointConfiguration.EnableWindowsPerformanceCounters();
+```
+
+In 6.x 
+```csharp
+endpointConfiguration.EnableCriticalTimePerformanceCounter();
+```
 
 ### Enabling SLA Counter
 
