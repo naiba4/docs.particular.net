@@ -46,7 +46,50 @@ class CustomizingHostUpgrade :
 
 These interfaces will be removed in version 8 of NServiceBus.Host. The logging can still be configured in the constructor of the class that implements `IConfigureThisEndpoint`. 
 
-snippet: CustomHostLogging
+In 8.x 
+```csharp
+class CustomLogging :
+    IConfigureThisEndpoint
+{
+    public void Customize(EndpointConfiguration configuration)
+    {
+        LogManager.Use<DefaultFactory>();
+    }
+}
+```
+In 7.x 
+```csharp
+class CustomLogging :
+    IConfigureThisEndpoint
+{
+    public void Customize(EndpointConfiguration configuration)
+    {
+        LogManager.Use<DefaultFactory>();
+    }
+}
+```
+
+In 6.x
+```csharp
+class CustomLogging : IConfigureThisEndpoint
+{
+    public void Customize(BusConfiguration configuration)
+    {
+        LogManager.Use<DefaultFactory>();
+    }
+}
+```
+
+In 5.x 
+```csharp
+class CustomLogging : IConfigureThisEndpoint
+{
+    public void Customize(BusConfiguration configuration)
+    {
+        LogManager.Use<DefaultFactory>();
+    }
+}
+```
 
 The way the runtime profile is detected will need to be re-created but a simple approach could be like this:
 
