@@ -154,4 +154,22 @@ public class Bootstrapper :
 
 ### Interface in NServiceBus.Hosting.Azure version 7
 
-snippet: 5to6-EndpointStartAndStopCloudHost
+```csharp 
+public class Bootstrapper :
+        IWantToRunWhenEndpointStartsAndStops
+    {
+        public Task Start(IMessageSession session)
+        {
+            // Do startup actions here.
+            // Either mark Start method as async or do the following
+            return Task.CompletedTask;
+        }
+
+        public Task Stop(IMessageSession session)
+        {
+            // Do cleanup actions here.
+            // Either mark Stop method as async or do the following
+            return Task.CompletedTask;
+        }
+    }
+```
