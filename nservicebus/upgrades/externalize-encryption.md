@@ -86,7 +86,27 @@ endpointConfiguration.RijndaelEncryptionService(defaultKey, keys);
 
 ## Using EncryptedString
 
-snippet: SplitMessageWithEncryptedProperty
+In 1.x
+```csharp
+using NServiceBus;
+using NServiceBus.Encryption.MessageProperty;
+
+public class MyMessage :
+    IMessage
+{
+    public EncryptedString MyEncryptedProperty { get; set; }
+}
+```
+In 6.x
+```csharp
+using NServiceBus;
+
+public class MyMessage :
+    IMessage
+{
+    public WireEncryptedString MyEncryptedProperty { get; set; }
+}
+```
 
 
 ## Encrypted property convention
