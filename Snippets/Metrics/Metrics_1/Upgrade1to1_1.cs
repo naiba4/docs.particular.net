@@ -8,12 +8,7 @@ class Upgrade1to1_1
 
     void EnableToTrace(EndpointConfiguration endpointConfiguration)
     {
-        #region 1to11EnableToTrace
-
-        var metrics = endpointConfiguration.EnableMetrics();
-        metrics.EnableMetricTracing(TimeSpan.FromSeconds(5));
-
-        #endregion
+       
     }
 
     void EnableToLog(EndpointConfiguration endpointConfiguration)

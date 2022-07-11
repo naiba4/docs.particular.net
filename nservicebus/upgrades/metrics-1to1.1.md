@@ -15,7 +15,55 @@ include: metrics-registerobservers
 
 Replace with explicit calls to [Trace.WriteLine](https://msdn.microsoft.com/en-us/library/system.diagnostics.trace.writeline.aspx).
 
-snippet: 1to11EnableToTrace
+1.1
+```csharp
+var metrics = endpointConfiguration.EnableMetrics();
+    metrics.RegisterObservers(
+        register: context =>
+        {
+            foreach (var duration in context.Durations)
+            {
+                duration.Register(
+                    observer: length =>
+                    {
+                        Trace.WriteLine($"Duration '{duration.Name}'. Value: '{length}'");
+                    });
+            }
+            foreach (var signal in context.Signals)
+            {
+                signal.Register(
+                    observer: () =>
+                    {
+                        Trace.WriteLine($"Signal: '{signal.Name}'");
+                    });
+            }
+        });
+```
+
+1.x
+```csharp
+var metrics = endpointConfiguration.EnableMetrics();
+    metrics.RegisterObservers(
+        register: context =>
+        {
+            foreach (var duration in context.Durations)
+            {
+                duration.Register(
+                    observer: length =>
+                    {
+                        Trace.WriteLine($"Duration '{duration.Name}'. Value: '{length}'");
+                    });
+            }
+            foreach (var signal in context.Signals)
+            {
+                signal.Register(
+                    observer: () =>
+                    {
+                        Trace.WriteLine($"Signal: '{signal.Name}'");
+                    });
+            }
+        });
+```
 
 
 ### EnableLogTracing
