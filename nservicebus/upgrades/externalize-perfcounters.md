@@ -29,7 +29,16 @@ endpointConfiguration.EnableCriticalTimePerformanceCounter();
 
 ### Enabling SLA Counter
 
-snippet: 6to1-enable-sla
+In 1.x
+```csharp
+var performanceCounters = endpointConfiguration.EnableWindowsPerformanceCounters();
+performanceCounters.EnableSLAPerformanceCounters(TimeSpan.FromMinutes(3));
+```
+
+In 6.x 
+```csharp 
+endpointConfiguration.EnableSLAPerformanceCounter(TimeSpan.FromMinutes(3));
+```
 
 ## Compatibility
 
