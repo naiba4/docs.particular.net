@@ -69,8 +69,23 @@ else
 
 Depending on whether the endpoint is hosted in a web or workerrole, the configuration file must be resolved from a different location.
 
-snippet: configuration-resolver
+```csharp
+static class ConfigurationResolver
+{
+    public static Configuration GetConfigurationHandler()
+    {
+        if (IsWebsite())
+        {
+            return WebConfigurationManager.OpenWebConfiguration(HostingEnvironment.ApplicationVirtualPath);
+        }
 
+        return ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+    }
+
+    static bool IsWebsite() => HostingEnvironment.IsHosted;
+}
+
+```
 
 #### Role Environment Interaction
 

@@ -6,25 +6,6 @@ using System.Configuration;
 using System.Web.Configuration;
 using System.Web.Hosting;
 
-#region configuration-resolver
-
-static class ConfigurationResolver
-{
-    public static Configuration GetConfigurationHandler()
-    {
-        if (IsWebsite())
-        {
-            return WebConfigurationManager.OpenWebConfiguration(HostingEnvironment.ApplicationVirtualPath);
-        }
-
-        return ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-    }
-
-    static bool IsWebsite() => HostingEnvironment.IsHosted;
-}
-
-#endregion
-
 #region safe-role-environment
 
 
