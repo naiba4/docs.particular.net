@@ -21,7 +21,27 @@ upgradeGuideCoreVersions:
 
 `NumberOfWorkerThreads` is deprecated as a parameter for channels in the endpoint config file. Use `MaxConcurrency` to set the maximum number of messages that should be processed at any given time by the gateway instead.
 
-snippet: 1to2GatewayConfig
+In 1.x 
+```xml
+<GatewayConfig>
+  <Channels>
+    <Channel Address="http://hq.mycorp.com/"
+             ChannelType="Http"
+             NumberOfWorkerThreads="3"/>
+  </Channels>
+</GatewayConfig>
+```
+
+In 2.x 
+```xml
+<GatewayConfig>
+  <Channels>
+    <Channel Address="http://hq.mycorp.com/"
+             ChannelType="Http"
+             MaxConcurrency="3"/>
+  </Channels>
+</GatewayConfig>
+```
 
 
 ## Automatic retries
