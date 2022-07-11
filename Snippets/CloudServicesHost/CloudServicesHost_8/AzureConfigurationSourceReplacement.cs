@@ -6,35 +6,6 @@ using System.Configuration;
 using System.Web.Configuration;
 using System.Web.Hosting;
 
-class AzureConfigurationSourceReplacement
-{
-    string AzureConfigurationSourceReplacementExample()
-    {
-        #region azure-configuration-source-replacement
-
-        var sectionName = "mySection";
-        var attributeName = "myAttribute";
-        string value;
-        if (SafeRoleEnvironment.IsAvailable)
-        {
-            var key = sectionName + "." + attributeName;
-            value = SafeRoleEnvironment.GetConfigurationSettingValue(key);
-        }
-        else
-        {
-            var section = ConfigurationResolver.GetConfigurationHandler()
-                              .GetSection(sectionName) as MyConfigurationSection;
-            value = section.MyAttribute;
-        }
-
-        // return value; // value for mySection.myAttribute
-
-        #endregion
-
-        return value;
-    }
-}
-
 #region configuration-resolver
 
 static class ConfigurationResolver

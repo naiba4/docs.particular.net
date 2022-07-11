@@ -48,7 +48,24 @@ The host allowed custom code to run at start and stop by implementing `IWantToRu
 
 Azure configuration source provided the capability to load configuration settings from either the configuration file or from the cloud services role environment. This logic can simply be replaced by:
 
-snippet: azure-configuration-source-replacement
+```csharp
+var sectionName = "mySection";
+var attributeName = "myAttribute";
+string value;
+if (SafeRoleEnvironment.IsAvailable)
+{
+    var key = sectionName + "." + attributeName;
+    value = SafeRoleEnvironment.GetConfigurationSettingValue(key);
+}
+else
+{
+    var section = ConfigurationResolver.GetConfigurationHandler()
+                        .GetSection(sectionName) as MyConfigurationSection;
+    value = section.MyAttribute;
+}
+
+// return value; // value for mySection.myAttribute
+```
 
 Depending on whether the endpoint is hosted in a web or workerrole, the configuration file must be resolved from a different location.
 
