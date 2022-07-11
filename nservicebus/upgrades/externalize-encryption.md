@@ -111,8 +111,31 @@ public class MyMessage :
 
 ## Encrypted property convention
 
-snippet: SplitDefiningEncryptedPropertiesAs
+In 1.x
+```csharp
+var encryptionService = new RijndaelEncryptionService(
+        encryptionKeyIdentifier: "2015-10",
+        key: Convert.FromBase64String("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"));
 
+endpointConfiguration.EnableMessagePropertyEncryption(
+    encryptionService: encryptionService,
+    encryptedPropertyConvention: propertyInfo =>
+    {
+        return propertyInfo.Name.EndsWith("EncryptedProperty");
+    }
+);
+```
+
+In 6.x 
+```csharp 
+var conventions = endpointConfiguration.Conventions();
+conventions.DefiningEncryptedPropertiesAs(
+    definesEncryptedProperty: propertyInfo =>
+    {
+        return propertyInfo.Name.EndsWith("EncryptedProperty");
+    });
+
+```
 
 ## Custom encryption service
 
