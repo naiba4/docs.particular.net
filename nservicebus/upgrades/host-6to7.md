@@ -93,7 +93,21 @@ class CustomLogging : IConfigureThisEndpoint
 
 The way the runtime profile is detected will need to be re-created but a simple approach could be like this:
 
-snippet: 6to7-ProfileForLogging
+```csharp
+class RuntimeProfile :
+    IConfigureThisEndpoint
+{
+    public void Customize(BusConfiguration busConfiguration)
+    {
+        var profile = Environment.GetCommandLineArgs();
+
+        if (profile.Contains("Production"))
+        {
+            // configure the production profile
+        }
+    }
+}
+```
 
 ## IWantToRunWhenEndpointStartsAndStops
 
