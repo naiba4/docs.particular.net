@@ -134,10 +134,30 @@ public class Bootstrapper :
 }
 ```
 
-
 ### Interface in version 7 of NServiceBus.Host
 
-snippet: 5to6-EndpointStartAndStopHost
+```csharp
+namespace Host_7.UpgradeGuides.Core5to6
+{
+    public class Bootstrapper :
+        IWantToRunWhenEndpointStartsAndStops
+    {
+        public Task Start(IMessageSession session)
+        {
+            // Do startup actions here.
+            // Either mark Start method as async or do the following
+            return Task.CompletedTask;
+        }
+
+        public Task Stop(IMessageSession session)
+        {
+            // Do cleanup actions here.
+            // Either mark Stop method as async or do the following
+            return Task.CompletedTask;
+        }
+    }
+}
+```
 
 
 The `IMessageSession` parameter provides all the necessary methods to send messages as part of the endpoint start up.
