@@ -21,7 +21,9 @@ endpointConfiguration.Gateway(new InMemoryDeduplicationConfiguration());
 
 The above code replaces the previous method of configuring the gateway so the following should no longer be used: 
 
-snippet: 2to3EnableGatewayBefore
+```csharp
+endpointConfiguration.EnableFeature<Gateway>();
+```
 
 ## Configuration
 
