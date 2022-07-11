@@ -25,7 +25,20 @@ Enabling callbacks in default mode requires the endpoint to be made [uniquely ad
 
 Endpoints only replying to callbacks with object messages like the following:
 
-snippet: 1to2-Callbacks-ObjectCallbackResponse
+```csharp
+public class Handler :
+    IHandleMessages<Message>
+{
+    public Task Handle(Message message, IMessageHandlerContext context)
+    {
+        var responseMessage = new ResponseMessage
+        {
+            Property = "PropertyValue"
+        };
+        return context.Reply(responseMessage);
+    }
+}
+```
 
 don't require a reference to the callbacks package. 
 
