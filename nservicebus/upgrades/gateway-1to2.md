@@ -61,4 +61,32 @@ In order to send or publish messages to a Gateway version 1.x, it is required to
 
 The following message mutator can be temporarily deployed until all Gateway 1.x endpoints are migrated to a newer major version.
 
-snippet: HeaderMutator
+In 2.x
+```csharp
+public class AddRequiredHeadersForGatewayBackwardsCompatibility : IMutateOutgoingTransportMessages
+{
+    public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
+    {
+        var headers = context.OutgoingHeaders;
+        headers.Add(Headers.TimeToBeReceived, TimeSpan.MaxValue.ToString());
+        headers.Add(Headers.NonDurableMessage, false.ToString());
+
+        return Task.CompletedTask;
+    }
+}
+```
+
+In 3.x
+```csharp
+public class AddRequiredHeadersForGatewayBackwardsCompatibility : IMutateOutgoingTransportMessages
+{
+    public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
+    {
+        var headers = context.OutgoingHeaders;
+        headers.Add(Headers.TimeToBeReceived, TimeSpan.MaxValue.ToString());
+        headers.Add(Headers.NonDurableMessage, false.ToString());
+
+        return Task.CompletedTask;
+    }
+}
+```
