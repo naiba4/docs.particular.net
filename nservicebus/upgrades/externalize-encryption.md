@@ -139,5 +139,17 @@ conventions.DefiningEncryptedPropertiesAs(
 
 ## Custom encryption service
 
-snippet: SplitEncryptionFromIEncryptionService
+In 1.x
+```csharp
+endpointConfiguration.EnableMessagePropertyEncryption(new EncryptionService());
+```
+
+In 6.x 
+```csharp
+endpointConfiguration.RegisterEncryptionService(
+            func: () =>
+            {
+                return new EncryptionService();
+            });
+```
 
