@@ -34,7 +34,7 @@ snippet: audit
 
 ## Select and configure [logging](/nservicebus/logging)
 
-In this sample [Log4net](/nservicebus/logging/log4net.md) is being used to route log events to the console.
+partial: logging
 
 snippet: logging
 
@@ -50,7 +50,7 @@ snippet: create-config
 
 ## Select and configure [dependency injection](/nservicebus/dependency-injection)
 
-This sample uses [Autofac](/nservicebus/dependency-injection/autofac.md) with a customized instance passed into NServiceBus.
+partial: container
 
 snippet: container
 

@@ -1,0 +1,1 @@
+In this sample [Log4net](/nservicebus/logging/log4net.md) is being used to route log events to the console.

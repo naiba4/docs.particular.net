@@ -1,0 +1,1 @@
+In this sample [NLog](/nservicebus/logging/nlog.md) through `Microsoft.Extensions.Logging` library for logging purposes.

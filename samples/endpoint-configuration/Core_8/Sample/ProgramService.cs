@@ -1,15 +1,14 @@
 using System;
 using System.ComponentModel;
-using System.Reflection;
 using System.ServiceProcess;
 using System.Threading.Tasks;
-using Autofac.Extensions.DependencyInjection;
-using log4net.Appender;
-using log4net.Config;
-using log4net.Core;
-using log4net.Layout;
+using NLog.Config;
+using NLog.Extensions.Logging;
+using NLog.Targets;
 using NServiceBus;
+using NServiceBus.Extensions.Logging;
 using NServiceBus.Logging;
+using LogManager = NServiceBus.Logging.LogManager;
 
 [DesignerCategory("Code")]
 class ProgramService :
@@ -44,29 +43,26 @@ class ProgramService :
 
     async Task AsyncOnStart()
     {
-        #pragma warning disable CS0618 // Type or member is obsolete
         #region logging
 
-        var layout = new PatternLayout
-        {
-            ConversionPattern = "%d %-5p %c - %m%n"
-        };
-        layout.ActivateOptions();
-        var appender = new ConsoleAppender
-        {
-            Layout = layout,
-            Threshold = Level.Info
-        };
-        appender.ActivateOptions();
+        var config = new LoggingConfiguration();
 
-        var executingAssembly = Assembly.GetExecutingAssembly();
-        var repository = log4net.LogManager.GetRepository(executingAssembly);
-        BasicConfigurator.Configure(repository, appender);
+        var consoleTarget = new ColoredConsoleTarget
+        {
+            Layout = "${level}|${logger}|${message}${onexception:${newline}${exception:format=tostring}}"
+        };
+        config.AddTarget("console", consoleTarget);
+        config.LoggingRules.Add(new LoggingRule("*", NLog.LogLevel.Debug, consoleTarget));
 
-        LogManager.Use<Log4NetFactory>();
+        NLog.LogManager.Configuration = config;
+
+        var extensionsLoggerFactory = new NLogLoggerFactory();
+
+        var nservicebusLoggerFactory = new ExtensionsLoggerFactory(loggerFactory: extensionsLoggerFactory);
+
+        LogManager.UseFactory(loggerFactory:nservicebusLoggerFactory);
 
         #endregion
-        #pragma warning restore CS0618 // Type or member is obsolete
 
         #region create-config
 
@@ -76,11 +72,11 @@ class ProgramService :
 
         #region container
 
-        endpointConfiguration.UseContainer(new AutofacServiceProviderFactory(builder =>
+        endpointConfiguration.RegisterComponents(svc =>
         {
             // configure custom services
-            // builder.RegisterInstance(new MyService());
-        }));
+            // svc.AddSingleton(new MyService());
+        });
 
         #endregion
 
@@ -117,12 +113,12 @@ class ProgramService :
         #region critical-errors
 
         endpointConfiguration.DefineCriticalErrorAction(
-            onCriticalError: async context =>
+            onCriticalError: async (context, cancellation) =>
             {
                 // Log the critical error
                 log.Fatal($"CRITICAL: {context.Error}", context.Exception);
 
-                await context.Stop()
+                await context.Stop(cancellation)
                     .ConfigureAwait(false);
 
                 // Kill the process on a critical error

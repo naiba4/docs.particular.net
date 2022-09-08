@@ -1,0 +1,1 @@
+This sample uses [Autofac](/nservicebus/dependency-injection/autofac.md) with a customized instance passed into NServiceBus.

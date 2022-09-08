@@ -1,0 +1,1 @@
+This sample uses `Microsoft.Extensions.DependencyInjection` for dependency injection.
