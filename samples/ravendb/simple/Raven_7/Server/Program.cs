@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -17,23 +18,27 @@ class Program
         #region Config
 
         var endpointConfiguration = new EndpointConfiguration("Samples.RavenDB.Server");
+        endpointConfiguration.SendFailedMessagesTo("error");
         using (var documentStore = new DocumentStore
         {
-            Urls = new[] { "http://localhost:8080" },
-            Database = "RavenSimpleSample",
+            Urls = new[] { "http://localhost:8083", "http://localhost:8081", "http://localhost:8082" },
+            Database = "RavenDbSample",
         })
         {
             documentStore.Initialize();
 
             var persistence = endpointConfiguration.UsePersistence<RavenDBPersistence>();
             persistence.SetDefaultDocumentStore(documentStore);
+            persistence.EnableClusterWideTransactions();
+
+            endpointConfiguration.RegisterComponents(c => c.ConfigureComponent<IDocumentStore>(() => documentStore, DependencyLifecycle.SingleInstance));
 
             #endregion
 
             var outbox = endpointConfiguration.EnableOutbox();
             outbox.SetTimeToKeepDeduplicationData(TimeSpan.FromMinutes(5));
 
-            var transport = endpointConfiguration.UseTransport<LearningTransport>();
+            var transport = endpointConfiguration.UseTransport<MsmqTransport>();
             transport.Transactions(TransportTransactionMode.ReceiveOnly);
             endpointConfiguration.EnableInstallers();
 
@@ -55,7 +60,19 @@ class Program
         // create the database
         try
         {
-            await documentStore.Maintenance.Server.SendAsync(new CreateDatabaseOperation(new DatabaseRecord(documentStore.Database)));
+            await documentStore.Maintenance.Server.SendAsync(new CreateDatabaseOperation(new DatabaseRecord(documentStore.Database)
+            {
+                Topology = new DatabaseTopology
+                {
+                    ReplicationFactor = 3,
+                    Members = new List<string>
+                    {
+                        "A",
+                        "B",
+                        "C"
+                    }
+                }
+            }));
         }
         catch (ConcurrencyException)
         {

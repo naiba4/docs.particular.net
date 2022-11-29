@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.Logging;
+using Raven.Client.Documents.Session;
 
 #region thesaga
 
@@ -41,16 +42,22 @@ public class OrderSaga :
         );
     }
 
-    public Task Timeout(CompleteOrder state, IMessageHandlerContext context)
+    public async Task Timeout(CompleteOrder state, IMessageHandlerContext context)
     {
-        log.Info($"Saga with OrderId {Data.OrderId} completed");
-        var orderCompleted = new OrderCompleted
+        var finishOrder = new FinishOrder
         {
             OrderId = Data.OrderId
         };
         MarkAsComplete();
-        return context.Publish(orderCompleted);
+        await context.SendLocal(finishOrder);
+
+        log.Info($"Saga with OrderId {Data.OrderId} completed");
     }
+}
+
+public class OrderDocument
+{
+    public string Id { get; set; }
 }
 
 #endregion

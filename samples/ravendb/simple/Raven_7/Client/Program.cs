@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using NServiceBus;
+using NServiceBus.Features;
 
 class Program
 {
@@ -9,7 +10,13 @@ class Program
         Console.Title = "Samples.RavenDB.Client";
         var endpointConfiguration = new EndpointConfiguration("Samples.RavenDB.Client");
         endpointConfiguration.EnableInstallers();
-        endpointConfiguration.UseTransport<LearningTransport>();
+        endpointConfiguration.DisableFeature<TimeoutManager>();
+        endpointConfiguration.SendFailedMessagesTo("error");
+        var transport = endpointConfiguration.UseTransport<MsmqTransport>();
+        transport.DisablePublishing();
+
+        var routing = transport.Routing();
+        routing.RegisterPublisher(typeof(OrderCompleted), "Samples.RavenDB.Server");
 
         var endpointInstance = await Endpoint.Start(endpointConfiguration)
             .ConfigureAwait(false);
